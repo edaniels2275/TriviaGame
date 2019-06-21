@@ -10,7 +10,6 @@ var clockRunning = false;
 var intervalId;
 var number = 12;
 
-
 //correct, incorrect, unanswered defined here
 var correct = 0;
 var incorrect = 0;
@@ -60,9 +59,10 @@ function decrement() {
     //  Show the number in the #show-number tag.
     $("#time-left").html("<h2>Time Remaining: " + number +  " Seconds </h2>");
 
-    if (number === 0 ) {
+    if (number == 0) {
         stopCountdown();
     }
+
 }
 
 //RUN WHEN USER CLICKS START BUTTON, game begins now
@@ -82,13 +82,16 @@ function decrement() {
 //QUESTION ONE
     function questionOne() {
 
+        $("#time-left").show();
+        // questionId === 1;
+        $("#start").hide();
         // shows the buttons (unfilled)
         $(".btn-outline-dark").show();
         $("#correctIcon").hide();
         $("#incorrectIcon").hide();
 
         countdown();
-
+        $("#question-answer-display").show();
         $("#question-answer-display").html("Which team won the NBA championship this year?")
 
         $("#optionOne").html("Raptors");
@@ -114,7 +117,6 @@ function decrement() {
 
             $(".btn-outline-dark").hide();
             $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Raptors!");
             stopCountdown();
             setTimeout(questionTwo, 1000 * 3);
             $("#incorrectIcon").show();
@@ -124,10 +126,9 @@ function decrement() {
         });
 
         $("#optionThree").click(function(){
-
+            
             $(".btn-outline-dark").hide();
             $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Raptors!");
             stopCountdown();
             setTimeout(questionTwo, 1000 * 3);
             $("#incorrectIcon").show();
@@ -138,9 +139,9 @@ function decrement() {
 
         $("#optionFour").click(function(){
 
+            
             $(".btn-outline-dark").hide();
             $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Raptors!");
             stopCountdown();
             setTimeout(questionTwo, 1000 * 3);
             $("#incorrectIcon").show();
@@ -149,25 +150,30 @@ function decrement() {
 
         });
 
-        if (number == 0) {
-            console.log(number);
+        // if (number == 0) {
+
+        //     console.log(number);
     
-            $("#time-left").hide();
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("Time's up!");
-            $("#correct-display").html("The correct answer was" + " the Raptors!");
-            stopCountdown();
-            setTimeout(questionTwo(), 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            unanswered++;
+        //     $("#time-left").hide();
+        //     $(".btn-outline-dark").hide();
+        //     $("#question-answer-display").html("Time's up!");
+        //     $("#correct-display").html("The correct answer was" + " the Raptors!");
+        //     stopCountdown();
+        //     setTimeout(questionTwo(), 1000 * 3);
+        //     $("#incorrectIcon").show();
+        //     $("#correctIcon").hide();
+        //     unanswered++;
             
-        }
+        // }
     }
 
 
 //QUESTION TWO
     function questionTwo() {
+
+        $("#time-left").show();
+
+        $("#start").hide();
         $("#correct-display").hide();
         $("#correctIcon").hide();
         $("#incorrectIcon").hide();
@@ -175,7 +181,7 @@ function decrement() {
         $(".btn-outline-dark").show();
 
         countdown();
-
+        $("#question-answer-display").show();
         $("#question-answer-display").html("Which team won the Super Bowl this year?")
 
         $("#optionOne").html("Bears");
@@ -241,6 +247,9 @@ function decrement() {
 
 //QUESTION THREE
     function questionThree() {
+        $("#time-left").show();
+
+        $("#start").hide();
         $("#correct-display").hide();
         $("#correctIcon").hide();
         $("#incorrectIcon").hide();
@@ -249,7 +258,7 @@ function decrement() {
         $(".btn-outline-dark").show();
 
         countdown();
-
+        $("#question-answer-display").show();
         $("#question-answer-display").html("Which team won the Stanley Cup Finals this year?")
 
         $("#optionOne").html("Blues");
@@ -314,12 +323,15 @@ function decrement() {
 
 //QUESTION FOUR
     function questionFour() {
+        $("#time-left").show();
+
+        $("#start").hide();
         $("#correct-display").hide();
         $("#correctIcon").hide();
         $("#incorrectIcon").hide();
 
         $(".btn-outline-dark").show();
-
+        $("#question-answer-display").show();
         $("#question-answer-display").html("Which team won the World Series this year?")
 
         $("#optionOne").html("Mariners");
@@ -386,11 +398,15 @@ function decrement() {
 
 //QUESTION FIVE
     function questionFive () {
+        $("#time-left").show();
+
+        $("#start").hide();
         $("#correct-display").hide();
         $("#correctIcon").hide();
         $("#incorrectIcon").hide();
         $(".btn-outline-dark").show();
 
+        $("#question-answer-display").show();
         $("#question-answer-display").html("Which athlete won the masters this year?")
 
         $("#optionOne").html("Jim Furyk");
@@ -455,12 +471,16 @@ function decrement() {
 
 //QUESTION SIX
     function questionSix() {
+        $("#time-left").show();
+        
+        $("#start").hide();
         $("#correct-display").hide();
         $("#correctIcon").hide();
         $("#incorrectIcon").hide();
 
         $(".btn-outline-dark").show();
 
+        $("#question-answer-display").show();
         $("#question-answer-display").html("Which athlete won the French Open this year?")
 
         $("#optionOne").html("Rafael Nadal");
@@ -525,12 +545,11 @@ function decrement() {
         $("#question-answer-display").hide();
         $(".btn-outline-dark").hide();
         $("#start").show();
-        $("#start").html("Play again!")
         $("#time-left").hide();
+        $("#start").html("Play again!")
+        $("#start").on("click", start); 
+        
 
     }
 
-
-
-//ends document.run function
 });
