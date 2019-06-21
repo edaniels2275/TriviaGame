@@ -8,7 +8,7 @@ var clockRunning = false;
 //  Variable that will hold our interval ID when we execute
 //  the "run" function
 var intervalId;
-var number = 12;
+var number = 11;
 
 //correct, incorrect, unanswered defined here
 var correct = 0;
@@ -28,7 +28,7 @@ $(document).ready(function(){
 //KEY FUNCTION CALLED EVERY TIME WE HAVE A NEW QUESTION
     function countdown () {
 
-        number = 12;
+        number = 11;
 
         if (!clockRunning) {
             intervalId = setInterval(decrement, 1000);
@@ -472,7 +472,7 @@ function decrement() {
 //QUESTION SIX
     function questionSix() {
         $("#time-left").show();
-        
+
         $("#start").hide();
         $("#correct-display").hide();
         $("#correctIcon").hide();
