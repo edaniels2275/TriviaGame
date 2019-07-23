@@ -8,9 +8,21 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    
+
     <style>
-         #contentColumn {
+        .row {
+            padding:50px;
+        }
+        .text-muted{
+            color: blue;
+        }
+        .last-seconds{
+            color: red;
+        }
+        .option{
+            margin: 15px;
+        }
+        #contentColumn {
             padding:50px;
         }
     </style>
@@ -19,7 +31,7 @@
 
         <br>
         <br>
-        <div class="container">
+        <div class="container text-center">
 
             <div class="row">
     
@@ -27,9 +39,8 @@
     
                     <div class="jumbotron"  style="background-color:whitesmoke">
     
-                        <h1 class="display-2 text-dark"><i class='fas fa-basketball-ball'></i> 2018-19 Sports Trivia!
-                            <i class='fas fa-football-ball'></i></h1>      
-                        <br>
+                        <h2 class="display-3 text-dark"><i class='fas fa-basketball-ball'></i> 2018-19 Sports Trivia!
+                            <i class='fas fa-football-ball'></i></h2>      
     
                     </div>
                     
@@ -38,65 +49,35 @@
             </div>
     
         </div>
-    
-        <br>
-        <br>
             
-  <div class="container text-dark">
+    <div class="container text-dark rounded">
 
         <div class="row">
 
-            <div class="col rounded" id="contentColumn" style="background-color:whitesmoke">  
+            <div class="col rounded" style="background-color:whitesmoke" id="contentColumn">
 
+            <div id="game">
 
-                <!-- the place where everything happens, the ACTION area -->
-                <div class="text-center" id="action-div" >
+            <!-- <h2>FRIENDS Trivia Game</h2> -->
+                <p id="remaining-time">Remaining Time: <span id="timer"> Seconds</span></p>
+                <p id="question"></p>
+                
+            </div>
 
-                    <button class="btn btn-primary btn-lg" id="start"><h4>Begin Game!</h4></button>
+            <div id="choices" class="text-center">
 
-                    <div class="text-center" id="time-left" padding-top="50px">
-                    </div>
-
-
-                    <br>
-                    <br>
-
-                    <h3 id="question-answer-display"></h3>
+                    <button id="start" class="btn btn-info btn-lg">Start Game</button>
+                    <div id="options"></div>
                     
-                    <br>
-                    <h3 id="correct-display"></h3>
-                    <h3 id="incorrect-display"></h3>
-                    <h3 id="unananswered-display"></h3>
-                    <!-- displays an icon when user selects answer or time runs out -->
-                    <i id="correctIcon" style="font-size:200px" class="fa fa-thumbs-up text-success"></i>
-                    <i id="incorrectIcon" style="font-size:200px" class="fa fa-thumbs-down text-danger"></i>
+            </div>
 
-                    <!-- buttons that hold each of the options -->
-                    <button class="btn btn-primary btn-lg btn-outline-dark" id="optionOne"><h5></h5></button>
-                    <br>
-                    <br>
-                    <button class="btn btn-primary btn-lg btn-outline-dark" id="optionTwo"><h5></h5></button>
-                    <br>
-                    <br>
-                    <button class="btn btn-primary btn-lg btn-outline-dark" id="optionThree"><h5></h5></button>
-                    <br>
-                    <br>
-                    <button class="btn btn-primary btn-lg btn-outline-dark" id="optionFour"><h5></h5></button>
-                    <br>
-                    <br>
-
-
-
-
-
-                </div>
-
-                <br>
-                <br>
+            <div id="results"></div>
 
             </div>
 
         </div>
+        
+    </div>
 
     </div>
 
@@ -110,8 +91,10 @@
     <!-- jQuery -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
     <!-- Script -->
-    <script type="text/javascript" src="assets/javascript/app.js"></script>
+    <script type="text/javascript" src="./assets/javascript/app.js"></script>
 
 </body>
 </html>

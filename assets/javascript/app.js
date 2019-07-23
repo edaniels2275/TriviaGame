@@ -1,555 +1,189 @@
-
-
-//  Interval Demonstration
-//  Set our number counter to 12.
-var clockRunning = false;
-
-
-//  Variable that will hold our interval ID when we execute
-//  the "run" function
-var intervalId;
-var number = 11;
-
-//correct, incorrect, unanswered defined here
-var correct = 0;
-var incorrect = 0;
-var unanswered = 0;
-
 $(document).ready(function(){ 
 
-    $("#correctIcon").hide();
-    $("#incorrectIcon").hide();
-   
-    $(".btn-outline-dark").hide();
-    
-    $("#start").on("click", start); 
+// new event listeners
+    $("#remaining-time").hide();
+    //when start button clicked, call startGame method from trivia object
+    $("#start").on("click", trivia.startGame);
+    //when button of class option clicked (not yet generated)
+    $(document).on("click", ".option", trivia.guessChecker);
+
+})
 
 
-//KEY FUNCTION CALLED EVERY TIME WE HAVE A NEW QUESTION
-    function countdown () {
+//trivia object
+//follows notation property/key:value
+var trivia = {
+    //trivia properties
+    correct: 0,
+    incorrect: 0,
+    unanswered: 0,
+    currentSet: 0,
+    timer: 20,
+    timerOn: false,
+    timerId: "",
 
-        number = 11;
+    //questions options and answers data
+    questions: {
+        q1: "Which team won the NBA championship this year?",
+        q2: "Which team won the Superbowl this year?",
+        q3: "Which team won the Stanley Cup Finals this year?",
+        q4: "Which team won the World Series this year?",
+        q5: "Which athlete won the Masters this year?",
+        q6: "Which athlete won the French Open this year?"
+    },
+    options: {
+        q1: ["Raptors", "Bucks", "Warriors", "Cavaliers"],
+        q2: ["Bears", "Packers", "Saints", "Patriots"],
+        q3: ["Blues", "Coyotes", "Rangers", "Bruins"],
+        q4: ["Mariners", "Yankees", "Red Sox", "Cardinals"],
+        q5: ["Jim Furyk","Tiger Woods","Brooks Koepka","Jordan Spieth"],
+        q6: ["Rafael Nadal","Novak Djokovic","Roger Federer","Andy Murray"]
+    },
+    answers: {
+        q1: "Raptors",
+        q2: "Patriots",
+        q3: "Blues",
+        q4: "Red Sox",
+        q5: "Tiger Woods",
+        q6: "Rafael Nadal"
+    },
+    //trivia methods
+    //method to initialize game
+    startGame : function(){
+        //resetting game results
+        trivia.currentSet = 0;
+        trivia.correct = 0;
+        trivia.incorrect = 0;
+        trivia.unanswered = 0;
+        clearInterval (trivia.timerId);
 
-        if (!clockRunning) {
-            intervalId = setInterval(decrement, 1000);
-            clockRunning = true;
+        //show game section by calling game Div
+        $("#game").show();
+
+        $("#remaining-time").show();
+        //empty last results (div holding correct and incorrect values)
+        //NOTE: didnt realize you could just empty it like this???
+        $("#results").html("");
+
+        //show timer
+        $("#timer").show();
+        $("#timer").text(trivia.timer);
+
+        //remove start button
+        $("#start").hide();
+
+
+        //ask first questions
+        trivia.nextQuestion();
+    },
+    //method to loop through and display questions and options
+    nextQuestion : function (){
+        //set timer to 10 seconds each question
+        trivia.timer = 10;
+        $("#timer").removeClass("last-seconds");
+        $("#timer").text(trivia.timer);
+
+        //to prevent timer speed up
+        if (!trivia.timerOn){
+            trivia.timerId = setInterval(trivia.timerRunning, 1000);
         }
 
-    }
+        //gets all the questions then indexes the current questions
+        var questionContent = Object.values(trivia.questions)[trivia.currentSet];
+        $("#question").text(questionContent);
 
-//STOPS COUNTDOWN
-    function stopCountdown() {
+        //array of all the user options for the current question
+        var questionOptions = Object.values(trivia.options)[trivia.currentSet];
 
-        // DONE: Use clearInterval to stop the count here and set the clock to not be running.
-        clearInterval(intervalId);
-        clockRunning = false;
+        //dynamically creates all the trivia guess options in the html as buttons
+        $.each(questionOptions, function(index, key){
+            $("#options").append($("<button class=option>" + key + "</button>"));
+            $("button").addClass("btn btn-info btn-lg");
 
-    }   
+        })
+    },
+    //method to decrement counter and count unanswered if timer runs out
+    timerRunning : function() {
+        //if timer still has time left and there are still questions left to ask
+        if (trivia.timer > -1 && trivia.currentSet < Object.keys(trivia.questions).length){
+            $("#game").show();
+            $("#timer").text(trivia.timer);
+            trivia.timer--;
+                if (trivia.timer === 4) {
+                    $("#timer").addClass("last-seconds");
+                }
+        }
+        else if (trivia.timer === -1){
+            $("#game").show();
+            trivia.unanswered++;
+            trivia.result = false;
+            clearInterval(trivia.timerId);
+            resultId = setTimeout(trivia.guessResult, 2000);
+            $("#results").html("<h3>Out of time! The answer was " + Object.values(trivia.answers)[trivia.currentSet] + "</h3>");
+        }
+        //if all the questions have been shown end the game, show results
+        else if (trivia.currentSet === Object.keys(trivia.questions).length){
+            //adds results of game (correct, incorrect, unanswered) to the page
+            $("#results")
+                .html("<h3>Thank you for playing!</h3>" + 
+                "<p>Correct: " + trivia.correct + "</p>" +
+                "<p>Incorrect: " + trivia.incorrect + "</p>" +
+                "<p>Unanswered: " + trivia.unanswered + "</p>" + 
+                "<h4>Please play again</h4>");
 
+            //hide game section
+            $("#game").hide();
 
+            //show start button to begin a new game
+            $("#start").show();
+            
+        }
 
+    },
+    //method to evaluate the option clicked
+    guessChecker : function(){
+        //timer ID for gameResult setTimeout
+        var resultId;
 
-//  The decrement function.
-function decrement() {
+        var currentAnswer = Object.values(trivia.answers)[trivia.currentSet];
 
-    //  Decrease number by one.
-    number--;
-    console.log(number);
+        //if the text of the option picked matches the answer of the current question, increment correct
+        if($(this).text() === currentAnswer) {
+            // turn button green for correct
+            $(this).addClass('btn-success').removeClass('btn-info');
+            
+            trivia.correct++;
+            clearInterval(trivia.timerId);
+            resultId = setTimeout(trivia.guessResult, 2000);
+            $('#results').html('<h3>Correct Answer!</h3>');
+        }
+            // else the user picked the wrong option, increment incorrect
+        else{
+            // turn button clicked red for incorrect
+            $(this).addClass('btn-danger').removeClass('btn-info');
+            
+            trivia.incorrect++;
+            clearInterval(trivia.timerId);
+            resultId = setTimeout(trivia.guessResult, 2000);
+            $('#results').html('<h3>Better luck next time! The correct answer was '+ currentAnswer +'</h3>');
+        }
+    
+    },
+    // method to remove previous question results and options
+    guessResult : function(){
+        
+        // increment to next question set
+        trivia.currentSet++;
+        
+        // remove the options and results
+        $('.option').remove();
+        $('#results h3').remove();
+        
 
-    //  Show the number in the #show-number tag.
-    $("#time-left").html("<h2>Time Remaining: " + number +  " Seconds </h2>");
-
-    if (number == 0) {
-        stopCountdown();
+        $("#game").show();
+        // begin next question
+        trivia.nextQuestion();
+        
     }
 
 }
-
-//RUN WHEN USER CLICKS START BUTTON, game begins now
-    function start () {
-        $("#time-left").show();
-        $("#question-answer-display").show();
-        // hides the start button
-        $("#start").hide();
-
-        // shows the buttons (unfilled)
-        // $(".btn-outline-dark").show();
-
-        questionOne();
-
-    }
-
-//QUESTION ONE
-    function questionOne() {
-
-        $("#time-left").show();
-        // questionId === 1;
-        $("#start").hide();
-        // shows the buttons (unfilled)
-        $(".btn-outline-dark").show();
-        $("#correctIcon").hide();
-        $("#incorrectIcon").hide();
-
-        countdown();
-        $("#question-answer-display").show();
-        $("#question-answer-display").html("Which team won the NBA championship this year?")
-
-        $("#optionOne").html("Raptors");
-        $("#optionTwo").html("Bucks");
-        $("#optionThree").html("Warriors");
-        $("#optionFour").html("Cavaliers");
-
-        //if correct answer clicked
-        $("#optionOne").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>CORRECT!!</h2>");
-            $("#correctIcon").show();
-            $("#incorrectIcon").hide();
-            stopCountdown();
-            setTimeout(questionTwo, 1000 * 3);
-            correct++;
-
-        });
-
-        // //if incorrect answers clicked
-        $("#optionTwo").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            stopCountdown();
-            setTimeout(questionTwo, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionThree").click(function(){
-            
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            stopCountdown();
-            setTimeout(questionTwo, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionFour").click(function(){
-
-            
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            stopCountdown();
-            setTimeout(questionTwo, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        // if (number == 0) {
-
-        //     console.log(number);
-    
-        //     $("#time-left").hide();
-        //     $(".btn-outline-dark").hide();
-        //     $("#question-answer-display").html("Time's up!");
-        //     $("#correct-display").html("The correct answer was" + " the Raptors!");
-        //     stopCountdown();
-        //     setTimeout(questionTwo(), 1000 * 3);
-        //     $("#incorrectIcon").show();
-        //     $("#correctIcon").hide();
-        //     unanswered++;
-            
-        // }
-    }
-
-
-//QUESTION TWO
-    function questionTwo() {
-
-        $("#time-left").show();
-
-        $("#start").hide();
-        $("#correct-display").hide();
-        $("#correctIcon").hide();
-        $("#incorrectIcon").hide();
-        // shows the buttons (unfilled)
-        $(".btn-outline-dark").show();
-
-        countdown();
-        $("#question-answer-display").show();
-        $("#question-answer-display").html("Which team won the Super Bowl this year?")
-
-        $("#optionOne").html("Bears");
-        $("#optionTwo").html("Packers");
-        $("#optionThree").html("Saints");
-        $("#optionFour").html("Patriots");
-
-        $("#optionFour").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>CORRECT!!</h2>");
-            stopCountdown();
-            setTimeout(questionThree, 1000 * 3);
-            $("#correctIcon").show();
-            $("#incorrectIcon").hide();
-            correct++;
-
-        });
-
-        //if incorrect answers clicked
-        $("#optionOne").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Patriots!");
-            stopCountdown();
-            setTimeout(questionThree, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionTwo").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Patriots!");
-            stopCountdown();
-            setTimeout(questionThree, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionThree").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Patriots!");
-            stopCountdown();
-            setTimeout(questionThree, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-    }
-
-
-
-
-//QUESTION THREE
-    function questionThree() {
-        $("#time-left").show();
-
-        $("#start").hide();
-        $("#correct-display").hide();
-        $("#correctIcon").hide();
-        $("#incorrectIcon").hide();
-
-        // shows the buttons (unfilled)
-        $(".btn-outline-dark").show();
-
-        countdown();
-        $("#question-answer-display").show();
-        $("#question-answer-display").html("Which team won the Stanley Cup Finals this year?")
-
-        $("#optionOne").html("Blues");
-        $("#optionTwo").html("Coyotes");
-        $("#optionThree").html("Rangers");
-        $("#optionFour").html("Bruins");
-
-        $("#optionOne").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>CORRECT!!</h2>");
-            stopCountdown();
-            setTimeout(questionFour, 1000 * 3);
-            $("#correctIcon").show();
-            $("#incorrectIcon").hide();
-            correct++;
-
-        });
-
-        //if incorrect answers clicked
-        $("#optionTwo").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Blues!");
-            stopCountdown();
-            setTimeout(questionFour, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionThree").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Blues!");
-            stopCountdown();
-            setTimeout(questionFour, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionFour").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Blues!");
-            stopCountdown();
-            setTimeout(questionFour, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-    }
-
-
-
-//QUESTION FOUR
-    function questionFour() {
-        $("#time-left").show();
-
-        $("#start").hide();
-        $("#correct-display").hide();
-        $("#correctIcon").hide();
-        $("#incorrectIcon").hide();
-
-        $(".btn-outline-dark").show();
-        $("#question-answer-display").show();
-        $("#question-answer-display").html("Which team won the World Series this year?")
-
-        $("#optionOne").html("Mariners");
-        $("#optionTwo").html("Yankees");
-        $("#optionThree").html("Red Sox");
-        $("#optionFour").html("Cardinals");
-
-        $("#optionThree").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>CORRECT!!</h2>");
-            stopCountdown();
-            setTimeout(questionFive, 1000 * 3);
-            $("#correctIcon").show();
-            $("#incorrectIcon").hide();
-            correct++;
-
-        });
-
-        //if incorrect answers clicked
-        $("#optionOne").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Red Sox!");
-            stopCountdown();
-            setTimeout(questionFive, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionTwo").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Red Sox!");
-            stopCountdown();
-            setTimeout(questionFive, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionFour").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " the Red Sox!");
-            stopCountdown();
-            setTimeout(questionFive, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-    }
-
-
-
-
-
-//QUESTION FIVE
-    function questionFive () {
-        $("#time-left").show();
-
-        $("#start").hide();
-        $("#correct-display").hide();
-        $("#correctIcon").hide();
-        $("#incorrectIcon").hide();
-        $(".btn-outline-dark").show();
-
-        $("#question-answer-display").show();
-        $("#question-answer-display").html("Which athlete won the masters this year?")
-
-        $("#optionOne").html("Jim Furyk");
-        $("#optionTwo").html("Tiger Woods");
-        $("#optionThree").html("Brooks Koepka");
-        $("#optionFour").html("Jordan Spieth");
-
-        $("#optionTwo").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>CORRECT!!</h2>");
-            stopCountdown();
-            setTimeout(questionSix, 1000 * 3);
-            $("#correctIcon").show();
-            $("#incorrectIcon").hide();
-            correct++;
-
-        });
-
-        //if incorrect answers clicked
-        $("#optionOne").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " Tiger Woods!");
-            stopCountdown();
-            setTimeout(questionSix, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionThree").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " Tiger Woods!");
-            stopCountdown();
-            setTimeout(questionSix, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionFour").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            $("#correct-display").html("The correct answer was" + " Tiger Woods!");
-            stopCountdown();
-            setTimeout(questionSix, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-    }
-
-
-
-//QUESTION SIX
-    function questionSix() {
-        $("#time-left").show();
-
-        $("#start").hide();
-        $("#correct-display").hide();
-        $("#correctIcon").hide();
-        $("#incorrectIcon").hide();
-
-        $(".btn-outline-dark").show();
-
-        $("#question-answer-display").show();
-        $("#question-answer-display").html("Which athlete won the French Open this year?")
-
-        $("#optionOne").html("Rafael Nadal");
-        $("#optionTwo").html("Novak Djokovic");
-        $("#optionThree").html("Roger Federer");
-        $("#optionFour").html("Andy Murray");
-
-        $("#optionOne").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>CORRECT!!</h2>");
-            stopCountdown();
-            setTimeout(totalScore, 1000 * 3);
-            $("#correctIcon").show();
-            $("#incorrectIcon").hide();
-            correct++;
-
-        });
-
-        //if incorrect answers clicked
-        $("#optionTwo").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            stopCountdown();
-            setTimeout(totalScore, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionThree").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            stopCountdown();
-            setTimeout(totalScore, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-
-        $("#optionFour").click(function(){
-
-            $(".btn-outline-dark").hide();
-            $("#question-answer-display").html("<h2>WRONG!!</h2>");
-            stopCountdown();
-            setTimeout(totalScore, 1000 * 3);
-            $("#incorrectIcon").show();
-            $("#correctIcon").hide();
-            incorrect++;
-
-        });
-    }
-
-// displays total stats
-    function totalScore() {
-
-        $("#icon").hide();
-        $("#question-answer-display").hide();
-        $(".btn-outline-dark").hide();
-        $("#start").show();
-        $("#time-left").hide();
-        $("#start").html("Play again!")
-        $("#start").on("click", start); 
-        
-
-    }
-
-});
